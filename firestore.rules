@@ -1,0 +1,79 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userProfileExists() {
+      return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function currentUser() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isActiveUser() {
+      return userProfileExists() && currentUser().active == true;
+    }
+
+    function hasRole(role) {
+      return isActiveUser() && currentUser().role == role;
+    }
+
+    function isDispatcher() {
+      return hasRole("dispatcher");
+    }
+
+    function isCallTaker() {
+      return hasRole("call-taker");
+    }
+
+    function isUnit() {
+      return hasRole("unit");
+    }
+
+    function ownUnitId() {
+      return currentUser().allowedUnitId;
+    }
+
+    function canReadAssignedIncident(assignedUnitIds) {
+      return isUnit() && ownUnitId() != null && ownUnitId() in assignedUnitIds;
+    }
+
+    function canAccessOwnUnit(unitId) {
+      return isUnit() && ownUnitId() != null && ownUnitId() == unitId;
+    }
+
+    function canAccessOwnUnitEvent(unitId) {
+      return isUnit() && ownUnitId() != null && ownUnitId() == unitId;
+    }
+
+    match /users/{userId} {
+      allow read: if isDispatcher() || (signedIn() && request.auth.uid == userId);
+      allow write: if false;
+    }
+
+    match /incidents/{incidentId} {
+      allow read: if isDispatcher() || isCallTaker() || canReadAssignedIncident(resource.data.assignedUnitIds);
+      allow create: if isDispatcher() || isCallTaker();
+      allow update, delete: if isDispatcher();
+    }
+
+    match /units/{unitId} {
+      allow read: if isDispatcher() || canAccessOwnUnit(unitId);
+      allow create, update: if isDispatcher() || canAccessOwnUnit(unitId);
+      allow delete: if isDispatcher();
+    }
+
+    match /statusEvents/{eventId} {
+      allow read: if isDispatcher() || isCallTaker() || canAccessOwnUnitEvent(resource.data.unitId);
+      allow create: if isDispatcher() || isCallTaker() || canAccessOwnUnitEvent(request.resource.data.unitId);
+      allow update, delete: if isDispatcher();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

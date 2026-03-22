@@ -1,0 +1,18 @@
+{
+  "name": "MedDispatch CAD",
+  "short_name": "MedDispatch",
+  "description": "Medical computer aided dispatch with call taking, dispatcher, and iPad unit workflows.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08141d",
+  "theme_color": "#08141d",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/meddispatch-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
