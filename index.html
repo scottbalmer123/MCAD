@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MACD | Medical Computer Aided Dispatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="assets/macd-icon.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <section class="auth-shell" id="authShell" aria-label="Log on">
+    <div class="auth-hero">
+      <div class="brand-lockup">
+        <img class="brand-logo" src="assets/macd-logo.svg" alt="MCAD Medical Computer Aided Dispatch logo">
+      </div>
+      <p class="auth-copy">
+        Separate access is enforced for administration, dispatch operations, call taking, and the unit iPad console.
+      </p>
+    </div>
+
+    <div class="auth-grid">
+      <section class="auth-card">
+        <div class="auth-card-head">
+          <p class="panel-kicker">Operations staff</p>
+          <h2>Admin / Dispatcher / Call Taker Log On</h2>
+        </div>
+        <form class="auth-form" id="staffAuthForm">
+          <label class="field">
+            <span>Username</span>
+            <input type="text" name="username" placeholder="dispatch01" autocomplete="username" required>
+          </label>
+          <label class="field">
+            <span>PIN</span>
+            <input type="password" name="pin" inputmode="numeric" autocomplete="current-password" placeholder="4 digit PIN" required>
+          </label>
+          <button type="submit" class="primary-button">Log on to staff portal</button>
+          <p class="auth-error" id="staffAuthError" aria-live="polite"></p>
+        </form>
+        <div class="auth-help">
+          <p class="auth-help-title">Demo access</p>
+          <div class="credential-list">
+            <div class="credential-chip">Admin: <span class="mono">admin01 / 9999</span></div>
+            <div class="credential-chip">Dispatcher: <span class="mono">dispatch01 / 2468</span></div>
+            <div class="credential-chip">Call taker: <span class="mono">calltake01 / 1357</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="auth-card auth-card-unit">
+        <div class="auth-card-head">
+          <p class="panel-kicker">Field device</p>
+          <h2>Unit iPad Access</h2>
+        </div>
+        <form class="auth-form" id="unitAccessForm">
+          <label class="field">
+            <span>Unit iPad</span>
+            <select name="unitAccount" id="unitAccessSelect" required></select>
+          </label>
+          <label class="field">
+            <span>PIN</span>
+            <input type="password" name="pin" inputmode="numeric" autocomplete="current-password" placeholder="Unit PIN" required>
+          </label>
+          <button type="submit" class="primary-button">Open unit portal</button>
+          <p class="auth-error" id="unitAuthError" aria-live="polite"></p>
+        </form>
+        <div class="auth-help">
+          <p class="auth-help-title">Demo device PINs</p>
+          <div class="credential-list">
+            <div class="credential-chip"><span class="mono">MED-402 / 0402</span></div>
+            <div class="credential-chip"><span class="mono">MED-411 / 0411</span></div>
+            <div class="credential-chip"><span class="mono">SUP-01 / 0001</span></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <div class="app-shell" id="appShell">
+    <header class="hero">
+      <div class="brand-lockup">
+        <img class="brand-logo" src="assets/macd-logo.svg" alt="MCAD Medical Computer Aided Dispatch logo">
+      </div>
+      <div class="hero-meta">
+        <div class="hero-badges">
+          <span class="badge badge-sync" id="syncModeBadge">Demo sync</span>
+          <span class="badge badge-time" id="lastSavedBadge">No updates yet</span>
+        </div>
+        <p class="hero-copy">
+          Track calls, assign units, and monitor live status from one clinical dispatch workspace.
+        </p>
+        <p class="hero-note">Clear information, calm hierarchy, and high-contrast alerts for active medical operations.</p>
+      </div>
+    </header>
+
+    <section class="session-bar" id="sessionBar" aria-label="Session status">
+      <div class="session-copy">
+        <span class="session-badge" id="sessionRoleBadge">Not signed in</span>
+        <div>
+          <strong class="session-name" id="sessionName">Unauthenticated</strong>
+          <p class="session-note" id="sessionNote">Log on to access the appropriate workspace.</p>
+        </div>
+      </div>
+      <button type="button" class="secondary-button" id="logoutButton">Log out</button>
+    </section>
+
+    <section class="notice-strip">
+      <article class="notice-card notice-card-operational">
+        <div class="notice-head">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 14a8 8 0 0 1 16 0"></path>
+            <path d="M7 14a5 5 0 0 1 10 0"></path>
+            <path d="M12 18h.01"></path>
+          </svg>
+          <h2>Operational note</h2>
+        </div>
+        <p id="operationalNoteText">
+          This prototype shares data inside the browser only. True dispatcher-to-iPad live tracking needs
+          a secure backend API or WebSocket service.
+        </p>
+      </article>
+      <article class="notice-card notice-card-protocol">
+        <div class="notice-head">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3 21 19H3L12 3Z"></path>
+            <path d="M12 9v4"></path>
+            <path d="M12 17h.01"></path>
+          </svg>
+          <h2>Protocol note</h2>
+        </div>
+        <p>
+          This build uses an AMPDS-inspired structured question flow. Licensed AMPDS question sets and
+          determinant logic are not included.
+        </p>
+      </article>
+    </section>
+
+    <nav class="mode-switch" aria-label="Application sections">
+      <button class="mode-button" data-view-target="admin">Admin</button>
+      <button class="mode-button active" data-view-target="dispatcher">Dispatcher</button>
+      <button class="mode-button" data-view-target="calltaking">Call Taking</button>
+      <button class="mode-button" data-view-target="unit">Unit iPad</button>
+    </nav>
+
+    <main class="views">
+      <section class="view active" id="dispatcherView" aria-label="Dispatcher view">
+        <div class="metric-grid">
+          <article class="metric-card">
+            <div class="metric-topline">
+              <span class="metric-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 3 21 19H3L12 3Z"></path>
+                  <path d="M12 9v4"></path>
+                  <path d="M12 17h.01"></path>
+                </svg>
+              </span>
+              <span class="metric-label">Active incidents</span>
+            </div>
+            <strong class="metric-value" id="activeIncidentMetric">0</strong>
+          </article>
+          <article class="metric-card">
+            <div class="metric-topline">
+              <span class="metric-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 15h12l2 4h2"></path>
+                  <path d="M6 15V9h8l2 6"></path>
+                  <circle cx="8" cy="18" r="2"></circle>
+                  <circle cx="17" cy="18" r="2"></circle>
+                  <path d="M9 9V6h4"></path>
+                </svg>
+              </span>
+              <span class="metric-label">Units logged in</span>
+            </div>
+            <strong class="metric-value" id="loggedInMetric">0</strong>
+          </article>
+          <article class="metric-card">
+            <div class="metric-topline">
+              <span class="metric-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 14a8 8 0 0 1 16 0"></path>
+                  <path d="M7 14a5 5 0 0 1 10 0"></path>
+                  <path d="M12 4v3"></path>
+                </svg>
+              </span>
+              <span class="metric-label">Committed units</span>
+            </div>
+            <strong class="metric-value" id="committedMetric">0</strong>
+          </article>
+          <article class="metric-card">
+            <div class="metric-topline">
+              <span class="metric-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"></path>
+                  <circle cx="12" cy="10" r="2.5"></circle>
+                </svg>
+              </span>
+              <span class="metric-label">Latest location ping</span>
+            </div>
+            <strong class="metric-value" id="latestPingMetric">No data</strong>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="panel panel-tall">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Jobs</p>
+                <h2>Incident Queue</h2>
+              </div>
+              <span class="panel-pill" id="incidentQueueCount">0 queued</span>
+            </div>
+            <div class="panel-body incident-list" id="incidentBoard"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Fleet</p>
+                <h2>Unit Board</h2>
+              </div>
+            </div>
+            <div class="panel-body table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Unit</th>
+                    <th>Status</th>
+                    <th>Job</th>
+                    <th>Location</th>
+                    <th>Last seen</th>
+                  </tr>
+                </thead>
+                <tbody id="unitBoardBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Map</p>
+                <h2>Operational Plot</h2>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="map-stage" id="mapStage">
+                <svg id="mapCanvas" viewBox="0 0 960 520" role="img" aria-label="Unit and incident positions"></svg>
+              </div>
+              <div class="map-legend">
+                <span><i class="legend-dot incident"></i> Incident</span>
+                <span><i class="legend-dot unit"></i> Unit</span>
+                <span><i class="legend-dot assignment"></i> Assignment line</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Feed</p>
+                <h2>Recent Activity</h2>
+              </div>
+            </div>
+            <div class="panel-body activity-feed" id="activityFeed"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="calltakingView" aria-label="Call taking view">
+        <div class="calltaking-grid">
+          <section class="panel panel-form">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Inbound call</p>
+                <h2>Create Incident</h2>
+              </div>
+            </div>
+            <form class="panel-body form-grid" id="callTakingForm">
+              <label class="field span-4">
+                <span>Call taker</span>
+                <input type="text" name="callTaker" value="Primary Desk" required>
+              </label>
+              <label class="field span-4">
+                <span>Caller name</span>
+                <input type="text" name="callerName" placeholder="Caller or witness" required>
+              </label>
+              <label class="field span-4">
+                <span>Callback</span>
+                <input type="tel" name="callback" placeholder="+61..." required>
+              </label>
+              <label class="field span-8">
+                <span>Location</span>
+                <input type="text" name="locationText" placeholder="Street, suburb, landmark" required>
+              </label>
+              <label class="field span-2">
+                <span>Latitude</span>
+                <input type="number" name="latitude" step="0.000001" placeholder="-37.8136">
+              </label>
+              <label class="field span-2">
+                <span>Longitude</span>
+                <input type="number" name="longitude" step="0.000001" placeholder="144.9631">
+              </label>
+              <label class="field span-3">
+                <span>Patient age</span>
+                <input type="text" name="patientAge" placeholder="e.g. 54">
+              </label>
+              <label class="field span-3">
+                <span>Patient sex</span>
+                <select name="patientSex">
+                  <option value="">Not stated</option>
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Non-binary">Non-binary</option>
+                  <option value="Unknown">Unknown</option>
+                </select>
+              </label>
+              <label class="field span-3">
+                <span>Protocol family</span>
+                <select name="protocolFamily" id="protocolFamilySelect" required></select>
+              </label>
+              <section class="protocol-flow span-12" id="protocolFlowPanel" aria-label="Structured interrogation">
+                <div class="protocol-flow-head">
+                  <div>
+                    <p class="panel-kicker">Structured interrogation</p>
+                    <h3>Guided question flow</h3>
+                  </div>
+                  <div class="protocol-flow-badge" id="guidedDeterminantBadge">Guided code pending</div>
+                </div>
+                <p class="protocol-flow-copy" id="protocolFlowCopy">
+                  Work through the guided questions to generate an AMPDS-inspired determinant recommendation.
+                </p>
+                <div class="protocol-question-grid" id="protocolQuestionFlow"></div>
+              </section>
+              <label class="field span-3">
+                <span>Determinant</span>
+                <select name="determinantCode" id="determinantSelect" required></select>
+              </label>
+              <div class="protocol-summary span-9" id="protocolSummary"></div>
+              <label class="field span-12">
+                <span>Chief complaint</span>
+                <input type="text" name="chiefComplaint" placeholder="Plain-language complaint summary" required>
+              </label>
+              <label class="field span-12">
+                <span>Clinical and scene notes</span>
+                <textarea name="notes" rows="5" placeholder="Key information for dispatch and responding units"></textarea>
+              </label>
+              <div class="form-actions span-12">
+                <button type="submit" class="primary-button">Create CAD job</button>
+                <span class="hint-text">Jobs created here flow straight to the dispatcher queue.</span>
+              </div>
+            </form>
+          </section>
+
+          <aside class="panel panel-preview">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Preview</p>
+                <h2>Dispatch Summary</h2>
+              </div>
+            </div>
+            <div class="panel-body preview-card" id="callPreview"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="adminView" aria-label="Administrator dashboard">
+        <div class="admin-grid">
+          <section class="panel admin-panel-wide">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Administration</p>
+                <h2>Reporting Overview</h2>
+              </div>
+            </div>
+            <div class="panel-body admin-stack">
+              <div class="admin-report-grid" id="adminReportMetrics"></div>
+              <div class="admin-report-panels">
+                <article class="preview-block">
+                  <span class="preview-label">Incident Activity</span>
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Report</th>
+                          <th>Value</th>
+                        </tr>
+                      </thead>
+                      <tbody id="adminIncidentReportBody"></tbody>
+                    </table>
+                  </div>
+                </article>
+                <article class="preview-block">
+                  <span class="preview-label">Fleet Status</span>
+                  <div class="table-wrap">
+                    <table class="data-table">
+                      <thead>
+                        <tr>
+                          <th>Status</th>
+                          <th>Units</th>
+                        </tr>
+                      </thead>
+                      <tbody id="adminUnitStatusReportBody"></tbody>
+                    </table>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Access</p>
+                <h2>Staff Users</h2>
+              </div>
+            </div>
+            <div class="panel-body admin-stack">
+              <form class="form-grid compact-form" id="adminStaffForm">
+                <input type="hidden" name="recordId">
+                <label class="field span-4">
+                  <span>Username</span>
+                  <input type="text" name="username" placeholder="newuser01" required>
+                </label>
+                <label class="field span-4">
+                  <span>Display name</span>
+                  <input type="text" name="displayName" placeholder="Dispatch Supervisor" required>
+                </label>
+                <label class="field span-2">
+                  <span>Role</span>
+                  <select name="role" required>
+                    <option value="admin">Admin</option>
+                    <option value="dispatcher">Dispatcher</option>
+                    <option value="call_taker">Call Taker</option>
+                  </select>
+                </label>
+                <label class="field span-2">
+                  <span>PIN</span>
+                  <input type="password" name="pin" inputmode="numeric" placeholder="4 digits" required>
+                </label>
+                <label class="checkbox-field span-12">
+                  <input type="checkbox" name="enabled" checked>
+                  <span>Account enabled</span>
+                </label>
+                <div class="form-actions span-12">
+                  <button type="submit" class="primary-button">Save staff user</button>
+                  <button type="reset" class="secondary-button">Clear</button>
+                </div>
+                <p class="admin-form-message span-12" id="adminStaffMessage" aria-live="polite"></p>
+              </form>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Access</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminStaffTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Devices</p>
+                <h2>Unit iPad Access</h2>
+              </div>
+            </div>
+            <div class="panel-body admin-stack">
+              <form class="form-grid compact-form" id="adminDeviceForm">
+                <input type="hidden" name="recordId">
+                <label class="field span-4">
+                  <span>Linked unit</span>
+                  <select name="unitId" id="adminDeviceUnitSelect" required></select>
+                </label>
+                <label class="field span-4">
+                  <span>Display name</span>
+                  <input type="text" name="displayName" placeholder="MED-412 iPad" required>
+                </label>
+                <label class="field span-4">
+                  <span>PIN</span>
+                  <input type="password" name="pin" inputmode="numeric" placeholder="4 digits" required>
+                </label>
+                <label class="checkbox-field span-12">
+                  <input type="checkbox" name="enabled" checked>
+                  <span>Device access enabled</span>
+                </label>
+                <div class="form-actions span-12">
+                  <button type="submit" class="primary-button">Save device access</button>
+                  <button type="reset" class="secondary-button">Clear</button>
+                </div>
+                <p class="admin-form-message span-12" id="adminDeviceMessage" aria-live="polite"></p>
+              </form>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Unit</th>
+                      <th>Display</th>
+                      <th>Access</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminDeviceTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Fleet setup</p>
+                <h2>Unit Types</h2>
+              </div>
+            </div>
+            <div class="panel-body admin-stack">
+              <form class="form-grid compact-form" id="adminUnitTypeForm">
+                <input type="hidden" name="recordId">
+                <label class="field span-4">
+                  <span>Type label</span>
+                  <input type="text" name="label" placeholder="ALS" required>
+                </label>
+                <label class="field span-8">
+                  <span>Description</span>
+                  <input type="text" name="description" placeholder="Advanced life support ambulance">
+                </label>
+                <div class="form-actions span-12">
+                  <button type="submit" class="primary-button">Save unit type</button>
+                  <button type="reset" class="secondary-button">Clear</button>
+                </div>
+                <p class="admin-form-message span-12" id="adminUnitTypeMessage" aria-live="polite"></p>
+              </form>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Description</th>
+                      <th>Units</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUnitTypeTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel admin-panel-wide">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Fleet registry</p>
+                <h2>Units</h2>
+              </div>
+            </div>
+            <div class="panel-body admin-stack">
+              <form class="form-grid compact-form" id="adminUnitForm">
+                <input type="hidden" name="recordId">
+                <label class="field span-3">
+                  <span>Unit ID</span>
+                  <input type="text" name="unitId" placeholder="MED-412" required>
+                </label>
+                <label class="field span-3">
+                  <span>Unit type</span>
+                  <select name="typeId" id="adminUnitTypeSelect" required></select>
+                </label>
+                <label class="field span-3">
+                  <span>Status</span>
+                  <select name="status" id="adminUnitStatusSelect" required></select>
+                </label>
+                <label class="field span-3">
+                  <span>Crew label</span>
+                  <input type="text" name="crew" placeholder="Crew 412">
+                </label>
+                <label class="field span-4">
+                  <span>Device label</span>
+                  <input type="text" name="deviceLabel" placeholder="iPad MED-412">
+                </label>
+                <label class="field span-2">
+                  <span>Latitude</span>
+                  <input type="number" name="latitude" step="0.000001" placeholder="-37.8136">
+                </label>
+                <label class="field span-2">
+                  <span>Longitude</span>
+                  <input type="number" name="longitude" step="0.000001" placeholder="144.9631">
+                </label>
+                <label class="field span-4">
+                  <span>Location note</span>
+                  <input type="text" name="locationNote" placeholder="South sector standby">
+                </label>
+                <label class="checkbox-field span-12">
+                  <input type="checkbox" name="loggedIn">
+                  <span>Unit currently logged in</span>
+                </label>
+                <div class="form-actions span-12">
+                  <button type="submit" class="primary-button">Save unit</button>
+                  <button type="reset" class="secondary-button">Clear</button>
+                </div>
+                <p class="admin-form-message span-12" id="adminUnitMessage" aria-live="polite"></p>
+              </form>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Unit</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Location</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminUnitTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="unitView" aria-label="Unit tablet view">
+        <div class="unit-workspace">
+          <section class="unit-login-screen" id="unitLoginScreen">
+            <div class="unit-login-card">
+              <div class="unit-login-copy">
+                <p class="panel-kicker">Crew login</p>
+                <h2>Unit Log On</h2>
+                <p>Log this iPad onto the active crew before status changes and dispatch alerts are enabled.</p>
+              </div>
+              <form class="form-grid compact-form" id="unitLoginForm">
+                <label class="field span-6">
+                  <span>Unit</span>
+                  <select name="unitId" id="unitSelect"></select>
+                </label>
+                <label class="field span-6">
+                  <span>Crew / clinician</span>
+                  <input type="text" name="crewName" placeholder="Crew identifier" required>
+                </label>
+                <label class="field span-12">
+                  <span>Device label</span>
+                  <input type="text" name="deviceLabel" placeholder="iPad Vehicle 401">
+                </label>
+                <div class="form-actions span-12">
+                  <button type="submit" class="primary-button">Log unit on</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="unit-ops-screen is-hidden" id="unitOpsScreen">
+            <div class="unit-summary" id="unitSummary"></div>
+
+            <section class="unit-case-panel" id="unitCasePanel">
+              <div class="unit-section-head">
+                <div>
+                  <p class="panel-kicker">Assigned this login</p>
+                  <h2>Case List</h2>
+                </div>
+              </div>
+              <div class="assigned-jobs unit-case-list" id="assignedJobs"></div>
+            </section>
+
+            <section class="unit-job-detail panel" id="unitJobDetail"></section>
+
+            <section class="unit-utility-panel panel">
+              <div class="panel-header">
+                <div>
+                  <p class="panel-kicker">Location</p>
+                  <h2>Tracking</h2>
+                </div>
+              </div>
+              <div class="panel-body tracking-panel">
+                <p class="hint-block" id="trackingHint">
+                  Browser GPS needs HTTPS or localhost. Use the manual fields below if the device is not in a secure context.
+                </p>
+                <div class="tracking-actions">
+                  <button type="button" class="primary-button" id="startTrackingButton">Start browser tracking</button>
+                  <button type="button" class="secondary-button" id="stopTrackingButton">Stop tracking</button>
+                  <button type="button" class="secondary-button" id="unitLogoutButton">Log unit off</button>
+                </div>
+                <form class="form-grid compact-form" id="manualLocationForm">
+                  <label class="field span-6">
+                    <span>Latitude</span>
+                    <input type="number" name="latitude" step="0.000001" required>
+                  </label>
+                  <label class="field span-6">
+                    <span>Longitude</span>
+                    <input type="number" name="longitude" step="0.000001" required>
+                  </label>
+                  <label class="field span-12">
+                    <span>Location note</span>
+                    <input type="text" name="locationNote" placeholder="Station, staging point, hospital bay">
+                  </label>
+                  <div class="form-actions span-12">
+                    <button type="submit" class="primary-button">Send manual location</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+
+            <div class="unit-status-dock">
+              <div class="status-button-grid" id="statusButtonGrid">
+                <button class="status-button" data-unit-status="Available">Available</button>
+                <button class="status-button" data-unit-status="En Route">En Route</button>
+                <button class="status-button" data-unit-status="On Scene">On Scene</button>
+                <button class="status-button" data-unit-status="Transporting">Transporting</button>
+                <button class="status-button" data-unit-status="At Hospital">At Hospital</button>
+                <button class="status-button" data-unit-status="Out of Service">Out of Service</button>
+              </div>
+            </div>
+
+            <div class="unit-dispatch-alert-screen is-hidden" id="unitDispatchAlertScreen"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
