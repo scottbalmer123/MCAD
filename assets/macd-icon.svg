@@ -1,0 +1,36 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="icon-bg" x1="24" y1="24" x2="232" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1F3A"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="icon-wave" x1="28" y1="110" x2="214" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#66E6D6" stop-opacity="0"/>
+      <stop offset="0.24" stop-color="#66E6D6"/>
+      <stop offset="1" stop-color="#2DB6FF"/>
+    </linearGradient>
+    <radialGradient id="icon-glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(202 84) rotate(90) scale(34)">
+      <stop stop-color="#66E6D6" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#66E6D6" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="icon-soft-glow" x="138" y="24" width="128" height="128" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#icon-bg)"/>
+  <path
+    d="M28 110H84L112 56L136 158L158 106L180 150L212 54"
+    stroke="url(#icon-wave)"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <g filter="url(#icon-soft-glow)">
+    <circle cx="202" cy="84" r="24" fill="url(#icon-glow)"/>
+  </g>
+  <path
+    d="M202 58C188.745 58 178 68.7452 178 82C178 99.3403 202 122 202 122C202 122 226 99.3403 226 82C226 68.7452 215.255 58 202 58ZM202 93C195.925 93 191 88.0751 191 82C191 75.9249 195.925 71 202 71C208.075 71 213 75.9249 213 82C213 88.0751 208.075 93 202 93Z"
+    fill="url(#icon-wave)"
+  />
+  <circle cx="202" cy="142" r="11" fill="url(#icon-wave)"/>
+</svg>
