@@ -48,9 +48,11 @@ export function useAuthSession() {
       return;
     }
 
+    const firebaseAuth = auth as NonNullable<typeof auth>;
+    const firestoreDb = db as NonNullable<typeof db>;
     let profileUnsubscribe: (() => void) | null = null;
 
-    const authUnsubscribe = onAuthStateChanged(auth, (nextUser) => {
+    const authUnsubscribe = onAuthStateChanged(firebaseAuth, (nextUser) => {
       setAuthUser(nextUser);
       setError(null);
 
@@ -67,7 +69,7 @@ export function useAuthSession() {
 
       setLoading(true);
       profileUnsubscribe = onSnapshot(
-        doc(db, "users", nextUser.uid),
+        doc(firestoreDb, "users", nextUser.uid),
         (snapshot) => {
           if (!snapshot.exists()) {
             setProfile(null);
